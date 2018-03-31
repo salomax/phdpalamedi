@@ -1,0 +1,24 @@
+---
+publishers:
+- name: "Revista Online de Comunicação , Linguagem e Midias – Rumores"
+  url:
+  - "http://www.revistas.usp.br/Rumores/issue/archive"
+  filters:
+  - "http://www.revistas.usp.br/Rumores/issue/view"
+  - "http://www.revistas.usp.br/Rumores/article/view"
+  - "http://www.revistas.usp.br/Rumores/article/download"
+- name: "Revista de Estudos da Comunicação"
+  url:
+  - "http://www2.pucpr.br/reol/pb/index.php/comunicacao?dd99=actual"
+  - "http://www2.pucpr.br/reol/pb/index.php/comunicacao?dd99=issues"
+  filters:
+  - "http://www2.pucpr.br/reol/pb/index.php/comunicacao?dd99=issue"
+  - "http://www2.pucpr.br/reol/index.php/comunicacao"
+- name: "Revista Organicom"
+  url:
+  - "http://www.revistaorganicom.org.br/sistema/index.php/organicom/issue/view/28/showToc"
+  - "http://www.revistaorganicom.org.br/sistema/index.php/organicom/issue/archive"
+  filters:
+  - "http://www.revistaorganicom.org.br/sistema/index.php/organicom/article/view"
+  - "http://www.revistaorganicom.org.br/sistema/index.php/organicom/issue/view"
+  - "http://www.revistaorganicom.org.br/sistema/index.php/organicom/article/download"

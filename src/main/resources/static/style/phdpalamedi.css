@@ -1,0 +1,117 @@
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 200;
+}
+
+a {
+    font-weight: 100;
+}
+
+.main {
+    padding: 15px;
+}
+
+div.bd-title {
+    margin-top: 30px;
+    margin-bottom: 50px;
+}
+
+div.card {
+    margin-bottom: 30px;
+}
+
+div.card .header {
+    color: #fff;
+    background-color: #3F51B5;
+    padding: 15px;
+}
+
+div.publisher-details div {
+    font-weight: lighter;
+}
+
+.btn-load {
+    margin-top: 15px;
+}
+
+div.task-active {
+    background-color: #000;
+    animation-name: task-active-color;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes task-active-color {
+    0% {
+        background-color: #000;
+    }
+    50% {
+        background-color: #4285f4;
+    }
+    100% {
+    background-color: #000;
+    }
+}
+
+div.fixed-top {
+    position: fixed;
+    top: 0;
+    right: 0;
+    color: #ddd;
+    background-color: #000;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+div.row.search {
+    padding: 15px;
+}
+
+div.result-box {
+    width: 100%;
+}
+
+div.result-item {
+    padding: 15px;
+    background: #f9f9fa;
+    margin-top: 25px;
+    border: 0 none;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.46);
+}
+
+div.result-item.selected {
+    background-color: rgba(0, 255, 0, 0.2);
+}
+
+input.search {
+    width: 100%;
+}
+
+div.btn-group-views {
+    margin-top: 15px;
+}
+
+div.article-content {
+    margin-top: 15px;
+    border: 1px solid rgba(51, 51, 51, 0.2);
+}
+
+div.query {
+    margin: 30px;
+    background-color: rgba(255,255,0,0.1);
+    padding: 15px;
+    color: rgba(0,0,0,0.7);
+}
+
+span.count {
+    margin-left: 30px;
+}
+
+pre.article-content {
+    padding: 15px;
+}
+
+mark{
+    background-color: #FFFF00;
+}
+
