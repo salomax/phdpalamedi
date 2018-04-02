@@ -34,8 +34,8 @@ public class PdfArticleCrawler implements ArticleCrawler {
 
     private static final Logger LOGGER = Logger.getLogger(PdfArticleCrawler.class.toString());
 
-    private final Set<String> visitedList = new HashSet<>();
-    private final Set<String> links = new HashSet<>();
+    private Set<String> visitedList = new HashSet<>();
+    private Set<String> links = new HashSet<>();
 
     @Autowired
     private ArticleVisitor visitor;
@@ -45,6 +45,8 @@ public class PdfArticleCrawler implements ArticleCrawler {
 
     @Override
     public void execute(Publisher publisher) {
+
+        this.links.clear();
 
         this.visitedList.addAll(publisher.getFilters().stream()
                 .map(PublisherFilter::getUrl).collect(Collectors.toList()));
@@ -56,8 +58,6 @@ public class PdfArticleCrawler implements ArticleCrawler {
     }
 
     protected void getPageLinks(Publisher publisher, String url) {
-
-        // LOGGER.info("Crawling for url " + url);
 
         // Check if you have already crawled the URLs
         URLConnection urlConnection;

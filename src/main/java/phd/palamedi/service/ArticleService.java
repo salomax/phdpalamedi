@@ -38,7 +38,7 @@ public class ArticleService {
 
         query.append("SELECT a \nFROM Article a ");
         query.append("\nWHERE ");
-        query.append("\n  a.status = 1 ");
+        query.append("\n  a.status = 0 ");
 
         if (StringUtils.isNotEmpty(search)) {
 
