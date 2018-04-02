@@ -1,0 +1,6 @@
+$ git init
+$ git remote add origin https://github.com/salomax/phdpalamedi.git
+
+$ git add *
+$ git commit -m ""
+$ git push -u origin master
