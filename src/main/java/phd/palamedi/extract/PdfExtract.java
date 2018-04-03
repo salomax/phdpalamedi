@@ -26,8 +26,7 @@ public class PdfExtract {
             pdfparser.parse(inputStream, contenthandler, metadata, new ParseContext());
             return contenthandler.toString();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new AcademicsException("PDF not extracted", e);
+            throw new AcademicsException("PDF not extracted: " + e.getMessage(), e);
         } finally {
             if (inputStream != null) {
                 try {

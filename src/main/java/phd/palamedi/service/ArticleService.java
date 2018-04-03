@@ -3,6 +3,7 @@ package phd.palamedi.service;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phd.palamedi.model.Article;
 import phd.palamedi.repository.ArticleRepository;
 import phd.palamedi.response.ArticleResponse;
@@ -93,17 +94,8 @@ public class ArticleService {
         return null;
     }
 
-    public void select(Integer id, Boolean selected) {
-
-        Optional<Article> article = this.articleRepository.findById(id);
-
-        if (article.isPresent()) {
-
-            article.get().setSelected(selected);
-            this.articleRepository.save(article.get());
-
-        }
-
+    @Transactional
+    public void save(Article article) {
+        this.articleRepository.save(article);
     }
-
 }

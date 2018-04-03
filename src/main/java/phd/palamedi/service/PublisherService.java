@@ -4,11 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import phd.palamedi.crawler.ArticleCrawler;
 import phd.palamedi.model.Article;
+import phd.palamedi.model.Publication;
 import phd.palamedi.model.Publisher;
 import phd.palamedi.model.PublisherDetails;
 import phd.palamedi.repository.ArticleRepository;
+import phd.palamedi.repository.PublicationRepository;
 import phd.palamedi.repository.PublisherRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -28,7 +31,13 @@ public class PublisherService {
     private ArticleRepository articleRepository;
 
     @Autowired
+    private PublicationRepository publicationRepository;
+
+    @Autowired
     private ArticleCrawler articleCrawler;
+
+    @Autowired
+    private ErrorService errorService;
 
     public List<Publisher> findAll() {
         return this.publisherRepository.findAll();
@@ -43,7 +52,8 @@ public class PublisherService {
             LOGGER.info("Get started to load articles from publisher " + publisher.get().getName());
 
             // Clean up all articles from the publisher
-            this.articleRepository.deleteByPublisher(publisher.get());
+            this.publicationRepository.deleteByPublisher(publisher.get());
+            this.errorService.deleteByPublisher(publisher.get());
 
             LOGGER.info("Removed all articles from publisher " + publisher.get().getName());
 

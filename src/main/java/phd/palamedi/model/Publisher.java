@@ -20,6 +20,8 @@ public class Publisher {
     private List<PublisherUrl> url;
     @OneToMany(mappedBy = "publisher")
     private List<PublisherFilter> filters;
+    @OneToMany(mappedBy = "publisher")
+    private List<Publication> publications;
 
     public Integer getId() {
         return id;
@@ -53,4 +55,11 @@ public class Publisher {
         this.filters = filters;
     }
 
+    public List<Publication> getPublications() {
+        return publications;
+    }
+
+    public void setPublications(List<Publication> publications) {
+        this.publications = publications;
+    }
 }

@@ -26,9 +26,4 @@ public class ArticleController {
         return this.articleService.get(id);
     }
 
-    @RequestMapping(value = "/{id}/selected/{selected}", method = RequestMethod.PUT)
-    public void select(@PathVariable Integer id, @PathVariable Boolean selected) {
-        this.articleService.select(id, selected);
-    }
-
 }

@@ -20,7 +20,7 @@ public class ArticleResponse {
 
     public ArticleResponse(Article article) {
         BeanUtils.copyProperties(article, this);
-        this.setPublisherName(article.getPublisher().getName());
+        this.setPublisherName(article.getPublication().getPublisher().getName());
     }
 
     public Integer getId() {

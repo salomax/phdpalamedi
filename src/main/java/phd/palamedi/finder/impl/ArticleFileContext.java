@@ -1,6 +1,7 @@
 package phd.palamedi.finder.impl;
 
 import phd.palamedi.finder.VisitContext;
+import phd.palamedi.model.Article;
 import phd.palamedi.model.ArticleFileConnection;
 import phd.palamedi.model.Publisher;
 
@@ -10,11 +11,11 @@ import phd.palamedi.model.Publisher;
 public class ArticleFileContext implements VisitContext<ArticleFileConnection> {
 
     private ArticleFileConnection articleFile;
-    private Publisher publisher;
+    private Article article;
 
-    public ArticleFileContext(Publisher publisher, ArticleFileConnection articleFile) {
+    public ArticleFileContext(Article article, ArticleFileConnection articleFile) {
         this.articleFile = articleFile;
-        this.publisher = publisher;
+        this.article = article;
     }
 
     @Override
@@ -22,8 +23,8 @@ public class ArticleFileContext implements VisitContext<ArticleFileConnection> {
         return this.articleFile;
     }
 
-    public Publisher getPublisher() {
-        return publisher;
+    public Article getArticle() {
+        return article;
     }
 
 }

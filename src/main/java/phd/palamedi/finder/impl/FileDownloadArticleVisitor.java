@@ -1,18 +1,18 @@
 package phd.palamedi.finder.impl;
 
 import com.sun.istack.internal.NotNull;
-import com.uwyn.jhighlight.tools.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import phd.palamedi.crawler.impl.PdfArticleCrawler;
 import phd.palamedi.extract.PdfExtract;
 import phd.palamedi.finder.ArticleVisitor;
 import phd.palamedi.finder.VisitContext;
 import phd.palamedi.model.Article;
 import phd.palamedi.model.ArticleFileConnection;
+import phd.palamedi.model.Error;
 import phd.palamedi.model.Status;
-import phd.palamedi.repository.ArticleRepository;
+import phd.palamedi.service.ArticleService;
+import phd.palamedi.service.ErrorService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,10 +27,13 @@ import java.util.logging.Logger;
 @Component
 public class FileDownloadArticleVisitor implements ArticleVisitor {
 
-    private static final Logger LOGGER = Logger.getLogger(PdfArticleCrawler.class.toString());
+    private static final Logger LOGGER = Logger.getLogger(FileDownloadArticleVisitor.class.toString());
 
     @Autowired
-    private ArticleRepository articleRepository;
+    private ArticleService articleService;
+
+    @Autowired
+    private ErrorService errorService;
 
     @Autowired
     private PdfExtract pdfExtract;
@@ -54,8 +57,7 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
 
         InputStream inputStream = null;
 
-        Article article = new Article();
-        article.setPublisher(articleFileContext.getPublisher());
+        Article article = articleFileContext.getArticle();
 
         ArticleFileConnection articleFileConnection = articleFileContext.get();
 
@@ -63,6 +65,8 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
         String fileURL = httpConn.getURL().toString();
 
         try {
+
+            LOGGER.info("Downloading article from " + fileURL);
 
             article.setUrl(fileURL);
 
@@ -91,44 +95,55 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
                 article.setError("Response: " + httpConn.getResponseCode() + " " + httpConn.getResponseMessage());
 
                 LOGGER.severe("No file to download. Server replied HTTP code: " + responseCode);
+
+                saveException(articleFileContext, "No file to download. Server replied HTTP code: " + responseCode);
+
             }
 
         } catch (Exception e) {
 
-            article.setStatus(Status.ERROR);
-            article.setError(ExceptionUtils.getExceptionStackTrace(e));
-
-            LOGGER.severe(e.getMessage());
+            saveException(articleFileContext, "Download error " + fileURL, e);
 
         } finally {
 
             try {
 
-                this.articleRepository.save(article);
+                this.articleService.save(article);
 
             } catch (Exception e) {
 
-                // Create error article
-                article = new Article();
-                article.setPublisher(articleFileContext.getPublisher());
-                article.setUrl(fileURL);
-                article.setStatus(Status.ERROR);
-                article.setError(ExceptionUtils.getExceptionStackTrace(e));
-                this.articleRepository.save(article);
+                this.saveException(articleFileContext, "Article not saved " + fileURL, e);
 
             }
 
             try {
 
-                inputStream.close();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
 
             } catch (IOException e) {
-                LOGGER.severe(e.getMessage());
+
+                this.saveException(articleFileContext, "Inputstream not saved " + fileURL, e);
 
             }
 
             httpConn.disconnect();
         }
+
+    }
+
+    private void saveException(ArticleFileContext articleFileContext, String message) {
+        this.saveException(articleFileContext, message, null);
+    }
+
+    private void saveException(ArticleFileContext articleFileContext, String message, Exception e) {
+        LOGGER.severe(message);
+        Error error = new Error();
+        error.setPublisher(articleFileContext.getArticle().getPublication().getPublisher());
+        error.setMessage(message);
+        error.setException(org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
+        this.errorService.save(error);
 
     }
 
