@@ -71,23 +71,8 @@ public class PublisherService {
 
         if (publisher.isPresent()) {
 
-            List<Article>  articles = this.articleRepository.findByPublisher(publisher.get());
-
-            articles.stream().forEach(article -> {
-
-                details.setTotalArticles(details.getTotalArticles() + 1);
-
-                switch (article.getStatus()) {
-                    case OK:
-                        details.setTotalArticlesSuccess(details.getTotalArticlesSuccess() + 1);
-                        break;
-                    default:
-                        details.setTotalArticlesError(details.getTotalArticlesError() + 1);
-                        break;
-                }
-
-            });
-
+            List<Article> articles = this.articleRepository.findByPublisher(publisher.get());
+            details.setTotalArticles(articles.size());
 
         }
 

@@ -12,14 +12,18 @@ import phd.palamedi.finder.ArticleVisitor;
 import phd.palamedi.finder.VisitContext;
 import phd.palamedi.finder.impl.ArticleFileContext;
 import phd.palamedi.model.*;
+import phd.palamedi.service.ArticleService;
 import phd.palamedi.service.ErrorService;
 import phd.palamedi.service.PublicationService;
 
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.KeyManagementException;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,7 +52,56 @@ public class OJSArticleCrawler implements ArticleCrawler {
     private PublicationService publicationService;
 
     @Autowired
+    private ArticleService articleService;
+
+    @Autowired
     private ErrorService errorService;
+
+    public OJSArticleCrawler() {
+
+        setupSSL();
+
+    }
+
+    private void setupSSL() {
+
+        LOGGER.info("Setting up SSL connections");
+
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            }
+            public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            }
+        } };
+
+        try {
+
+            // Install the all-trusting trust manager
+            final SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "SSL connections not setup", e);
+        }
+
+        // Create all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                // TODO load all urls from publish and extract their localhost
+                return true;
+            }
+        };
+
+        // Install the all-trusting host verifier
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+
+    }
 
     @Override
     public void execute(Publisher publisher) {
@@ -131,18 +184,7 @@ public class OJSArticleCrawler implements ArticleCrawler {
     }
 
     private String getArticleUrl(Element article) {
-
-        String url = article.select(".tocTitle a").attr("href");
-
-        // Check showToc url
-        if (StringUtils.isEmpty(url)) {
-
-
-
-        }
-
-        return url;
-
+        return article.select(".tocTitle a").attr("href");
     }
 
     protected void savePublication(Element issue, Publisher publisher) {
@@ -218,9 +260,9 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
             String message = "Artigo não encontrado '"
                     + article.text()
-                    + " ' Publicação '"
+                    + "'. Publicação '"
                     + publication.getName()
-                    + "' url '"
+                    + "' URL '"
                     + publication.getUrl()
                     + "'";
 
@@ -239,31 +281,32 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
             final Article article = new Article();
             article.setPublication(publication);
-
+            article.setUrl(articleUrl);
             article.setTitle(getText(element, "div[id=articleTitle]"));
             article.setSummary(removePrefix(getText(element, "div[id=articleAbstract]"), "Resumo"));
             article.setAuthor(getText(element, "div[id=authorString]"));
             article.setKeywords(removePrefix(getText(element, "div[id=articleSubject]"), "Palavras-chave"));
 
-            URLConnection pdf = this.findPdfLink(element);
-            if (pdf != null) {
+            this.articleService.save(article);
 
-                ArticleFileConnection articleFile = new ArticleFileConnection(pdf);
+            List<URLConnection> downloads = this.findDownloads(element, article);
+            if (downloads != null) {
 
+                ArticleFileConnection articleFile = new ArticleFileConnection(downloads);
                 VisitContext context = new ArticleFileContext(article, articleFile);
                 this.visitor.visit(context);
 
             } else {
 
-                String message = " PDF não encontrado. Article '"
+                String message = " PDF não encontrado. Artigo '"
                         + article.getTitle()
-                        + "' url "
+                        + "' URL '"
                         + articleUrl
-                        + " ' Publicacão '"
+                        + "'. Publicacão '"
                         + publication.getName()
-                        + "' url '"
+                        + "' URL '"
                         + publication.getUrl()
-                        + "'";
+                        + "'.";
 
                 LOGGER.log(Level.SEVERE, message);
                 this.errorService.save(publication.getPublisher(), message);
@@ -295,21 +338,27 @@ public class OJSArticleCrawler implements ArticleCrawler {
         return "";
     }
 
-    private URLConnection findPdfLink(Element element) {
+    private List<URLConnection> findDownloads(Element element, Article article) {
 
-        String pdfUrl = null;
+        List<URLConnection> connections = new ArrayList<>();
+        String pdfUrl;
 
         // Search for PDF download
-        List<Element> links = element.select("a");
-        for (Element link : links) {
-            if ("PDF".equals(link.text())) {
-                pdfUrl = link.attr("href").replaceAll("article/view", "article/download");
-                break;
-            }
-        }
-
+        List<Element> links = element.select("a.file");
         try {
-            return new URL(pdfUrl).openConnection();
+
+            for (Element link : links) {
+
+                String href = link.attr("href");
+                if (href.startsWith(article.getUrl())) {
+                    pdfUrl = link.attr("href").replaceAll("article/view", "article/download");
+                    connections.add(new URL(pdfUrl).openConnection());
+                }
+
+            }
+
+            return connections;
+
         } catch (IOException e) {
             return null;
         }

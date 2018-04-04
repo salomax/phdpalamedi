@@ -7,10 +7,9 @@ import org.springframework.util.StringUtils;
 import phd.palamedi.extract.PdfExtract;
 import phd.palamedi.finder.ArticleVisitor;
 import phd.palamedi.finder.VisitContext;
-import phd.palamedi.model.Article;
-import phd.palamedi.model.ArticleFileConnection;
+import phd.palamedi.model.*;
 import phd.palamedi.model.Error;
-import phd.palamedi.model.Status;
+import phd.palamedi.service.ArticleContentService;
 import phd.palamedi.service.ArticleService;
 import phd.palamedi.service.ErrorService;
 
@@ -18,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -30,7 +31,7 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
     private static final Logger LOGGER = Logger.getLogger(FileDownloadArticleVisitor.class.toString());
 
     @Autowired
-    private ArticleService articleService;
+    private ArticleContentService articleContentService;
 
     @Autowired
     private ErrorService errorService;
@@ -50,7 +51,6 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
 
         }
 
-
     }
 
     protected void downloadFile(ArticleFileContext articleFileContext) {
@@ -61,74 +61,86 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
 
         ArticleFileConnection articleFileConnection = articleFileContext.get();
 
-        HttpURLConnection httpConn = (HttpURLConnection) articleFileConnection.getUrlConnection();
-        String fileURL = httpConn.getURL().toString();
+        List<URLConnection> connections = articleFileConnection.getUrlConnections();
 
-        try {
+        for (URLConnection connection : connections) {
 
-            LOGGER.info("Downloading article from " + fileURL);
+            ArticleContent articleContent = new ArticleContent();
+            articleContent.setArticle(article);
 
-            article.setUrl(fileURL);
-
-            String fileName = this.getFileName(httpConn.getHeaderField("Content-Disposition"));
-            if (StringUtils.isEmpty(fileName)) {
-                fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-            }
-            article.setFileName(fileName);
-
-            int responseCode = httpConn.getResponseCode();
-
-            // always check HTTP response code first
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-
-                LOGGER.info("File downloaded " + fileURL);
-
-                article.setStatus(Status.OK);
-
-                // opens input stream from the HTTP connection
-                inputStream = httpConn.getInputStream();
-                article.setContent(pdfExtract.extract(inputStream));
-
-            } else {
-
-                article.setStatus(Status.ERROR);
-                article.setError("Response: " + httpConn.getResponseCode() + " " + httpConn.getResponseMessage());
-
-                LOGGER.severe("No file to download. Server replied HTTP code: " + responseCode);
-
-                saveException(articleFileContext, "No file to download. Server replied HTTP code: " + responseCode);
-
-            }
-
-        } catch (Exception e) {
-
-            saveException(articleFileContext, "Download error " + fileURL, e);
-
-        } finally {
+            HttpURLConnection httpConn = (HttpURLConnection) connection;
+            String fileURL = httpConn.getURL().toString();
 
             try {
 
-                this.articleService.save(article);
+                LOGGER.info("Downloading article from " + fileURL);
+                articleContent.setUrl(fileURL);
+
+                int responseCode = httpConn.getResponseCode();
+
+                // always check HTTP response code first
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                    LOGGER.info("File downloaded " + fileURL);
+
+                    // opens input stream from the HTTP connection
+                    inputStream = httpConn.getInputStream();
+                    articleContent.setContent(pdfExtract.extract(inputStream));
+                    articleContent.setStatus(Status.OK);
+
+                } else {
+
+                    articleContent.setStatus(Status.ERROR);
+                    String message = "Não foi possível o download da URL '"
+                            + fileURL
+                            + "'. HTTP code: " + responseCode;
+                    LOGGER.severe(message);
+                    saveException(articleFileContext, message);
+
+                }
 
             } catch (Exception e) {
 
-                this.saveException(articleFileContext, "Article not saved " + fileURL, e);
+                articleContent.setStatus(Status.ERROR);
+                String message = "Não foi possível o download da URL '"
+                        + fileURL
+                        + "'. Erro: " + e.getMessage();
+                LOGGER.severe(message);
+                saveException(articleFileContext, message, e);
 
-            }
+            } finally {
 
-            try {
+                try {
 
-                if (inputStream != null) {
-                    inputStream.close();
+                    this.articleContentService.save(articleContent);
+
+                } catch (Exception e) {
+
+                    String message = "Não foi possível salvar o conteúdo da URL '"
+                            + fileURL
+                            + "'. Erro: " + e.getMessage();
+                    LOGGER.severe(message);
+                    this.saveException(articleFileContext, message, e);
+
                 }
 
-            } catch (IOException e) {
+                try {
 
-                this.saveException(articleFileContext, "Inputstream not saved " + fileURL, e);
+                    if (inputStream != null) {
+                        inputStream.close();
+                    }
 
+                } catch (IOException e) {
+
+                    String message = "Inputstream não encerrado apropriadamente";
+                    LOGGER.severe(message);
+                    this.saveException(articleFileContext, message, e);
+
+                }
+
+                httpConn.disconnect();
             }
 
-            httpConn.disconnect();
         }
 
     }
@@ -145,11 +157,6 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
         error.setException(org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
         this.errorService.save(error);
 
-    }
-
-    private String getFileName(String contentDisposition) throws UnsupportedEncodingException {
-        String fileName = contentDisposition.replaceFirst("(?i)^.*filename=\"?([^\"]+)\"?.*$", "$1");
-        return URLDecoder.decode(fileName, "ISO_8859_1");
     }
 
 }
