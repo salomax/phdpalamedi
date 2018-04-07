@@ -1,8 +1,10 @@
 package phd.palamedi.extract;
 
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.pdf.PDFParser;
+import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.stereotype.Component;
 import org.xml.sax.ContentHandler;
@@ -22,19 +24,24 @@ public class PdfExtract {
         try {
             ContentHandler contenthandler = new BodyContentHandler();
             Metadata metadata = new Metadata();
-            PDFParser pdfparser = new PDFParser();
-            pdfparser.parse(inputStream, contenthandler, metadata, new ParseContext());
+            Parser parser = new AutoDetectParser(new DefaultDetector());
+            parser.parse(inputStream, contenthandler, metadata, new ParseContext());
             return contenthandler.toString();
         } catch (Exception e) {
-            throw new AcademicsException("PDF not extracted: " + e.getMessage(), e);
+
+            throw new AcademicsException("Não foi possível realizar parse do arquivo: " + e.getMessage(), e);
+
         } finally {
+
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    throw new AcademicsException("PDF not extracted. Input stream not closed", e);
+                    throw new AcademicsException("Não foi possível realizar parse do arquivo. " +
+                            "Erro ao finalizar InputStream", e);
                 }
             }
+
         }
 
     }

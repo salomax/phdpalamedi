@@ -6,6 +6,9 @@ import phd.palamedi.model.Article;
 import phd.palamedi.response.SearchResponse;
 import phd.palamedi.service.ArticleService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Created by marcos.salomao on 25/3/18.
  */
@@ -19,6 +22,11 @@ public class ArticleController {
     @RequestMapping(method = RequestMethod.GET)
     public SearchResponse search(@RequestParam("search") String search) {
         return this.articleService.findByContent(search);
+    }
+
+    @RequestMapping(value = "/filter", method = RequestMethod.GET)
+    public SearchResponse search(@RequestParam("tags") String[] tags) {
+        return this.articleService.findByTags(Arrays.asList(tags));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

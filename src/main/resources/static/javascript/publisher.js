@@ -6,31 +6,41 @@
         var self = this;
 
         var $row = $("<div class='row publisher-details'>");
-        this.append($row);
-
-        var $col = $("<div class='col-sm-3 total'>");
-        $col.append(document.createTextNode(data.totalArticles));
-        $col.append($("<small> arquivos carregados</small>"));
-        $col.appendTo($row);
-        var $col = $("<div class='col-sm-3 success'>");
-        $col.append(document.createTextNode(data.totalArticlesSuccess));
-        $col.append($("<small> com sucesso</small>"));
-        $col.appendTo($row);
-        var $col = $("<div class='col-sm-3 error'>");
-        $col.append(document.createTextNode(data.totalArticlesError));
-        $col.append($("<small> com erro</small>"));
-        $col.appendTo($row);
-
-        var $col = $("<div class='col-sm-3 total'>");
-        $col.appendTo($row);
-
+        var $errorRow = $("<div class='row publisher-details'>");
         var $refresh = $('<button class="btn btn-default float-sm-right">Atualizar</button>');
+
         $refresh.bind('click', function() {
+            $refresh.remove();
             $row.remove();
+            $errorRow.remove()
             self.loadPublisherDetails(id);
         });
-        $refresh.appendTo($col);
+        $refresh.appendTo(self);
 
+        this.append($row);
+
+        var $col = $("<div class='col-sm-12 total'>");
+        $col.append(document.createTextNode(data.totalArticles));
+        $col.append($("<small> artigos carregados</small>"));
+        $col.appendTo($row);
+
+        $errorRow.appendTo(this);
+
+        var $col = $("<div class='col-sm-12 error'>");
+        $col.append(document.createTextNode(data.totalArticlesError));
+        $col.append($("<small> erros encontrados</small>"));
+        $col.appendTo($errorRow);
+
+        if (data.totalArticlesError > 0) {
+
+            var $errorLink = $('<button class="btn btn-danger errors">');
+            $errorLink.appendTo($col);
+            $errorLink.html("ver erros");
+            $errorLink.bind('click', function() {
+                window.location.href = "/error.html?publisher_id=" + id;
+            });
+
+        }
 
     };
 

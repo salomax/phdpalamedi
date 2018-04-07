@@ -1,5 +1,7 @@
 package phd.palamedi.response;
 
+import phd.palamedi.model.ArticleContent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class SearchResponse {
     private String query;
     private List<ArticleResponse> articles;
     List<String> terms = new ArrayList<>();
+    List<String> tags = new ArrayList<>();
 
     public String getQuery() {
         return query;
@@ -34,5 +37,13 @@ public class SearchResponse {
 
     public void setTerms(List<String> terms) {
         this.terms = terms;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

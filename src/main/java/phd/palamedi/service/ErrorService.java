@@ -7,6 +7,8 @@ import phd.palamedi.model.Error;
 import phd.palamedi.model.Publisher;
 import phd.palamedi.repository.ErrorRepository;
 
+import java.util.List;
+
 /**
  * Created by marcos.salomao on 2/4/18.
  */
@@ -43,4 +45,13 @@ public class ErrorService {
         this.errorRepository.deleteByPublisher(publisher);
     }
 
+    public List<Error> search() {
+        return this.errorRepository.findAll();
+    }
+
+    public List<Error> search(Integer publisherId) {
+        Publisher publisher = new Publisher();
+        publisher.setId(publisherId);
+        return this.errorRepository.findByPublisher(publisher);
+    }
 }

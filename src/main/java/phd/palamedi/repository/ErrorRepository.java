@@ -16,4 +16,6 @@ public interface ErrorRepository extends JpaRepository<Error, Integer> {
 
     @Transactional
     void deleteByPublisher(Publisher publisher);
+
+    List<Error> findByPublisher(Publisher publisher);
 }

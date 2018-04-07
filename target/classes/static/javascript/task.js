@@ -17,7 +17,7 @@
         $col.appendTo($row);
 
         var $col = $("<div class='col-sm-4 total'>");
-        $col.append($("<small>Threads Active </small>"));
+        $col.append($("<small>Active Threads </small>"));
         $col.append(document.createTextNode(data.activeCount));
         $col.appendTo($row);
 

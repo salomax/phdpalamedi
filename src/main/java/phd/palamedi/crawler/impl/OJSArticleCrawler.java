@@ -260,9 +260,9 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
             String message = "Artigo não encontrado '"
                     + article.text()
-                    + "'. Publicação '"
+                    + "'.\nPublicação '"
                     + publication.getName()
-                    + "' URL '"
+                    + "'\nURL '"
                     + publication.getUrl()
                     + "'";
 
@@ -298,13 +298,13 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
             } else {
 
-                String message = " PDF não encontrado. Artigo '"
+                String message = " PDF não encontrado.\nArtigo '"
                         + article.getTitle()
                         + "' URL '"
                         + articleUrl
-                        + "'. Publicacão '"
+                        + "'.\nPublicacão '"
                         + publication.getName()
-                        + "' URL '"
+                        + "'\nURL '"
                         + publication.getUrl()
                         + "'.";
 

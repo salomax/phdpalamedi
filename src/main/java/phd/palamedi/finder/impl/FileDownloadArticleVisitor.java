@@ -1,6 +1,7 @@
 package phd.palamedi.finder.impl;
 
 import com.sun.istack.internal.NotNull;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -93,6 +94,10 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
                     articleContent.setStatus(Status.ERROR);
                     String message = "Não foi possível o download da URL '"
                             + fileURL
+                            + "'.\nArtigo '"
+                            + article.getUrl()
+                            + "'.\nPublicação '"
+                            + article.getPublication().getUrl()
                             + "'. HTTP code: " + responseCode;
                     LOGGER.severe(message);
                     saveException(articleFileContext, message);
@@ -104,7 +109,11 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
                 articleContent.setStatus(Status.ERROR);
                 String message = "Não foi possível o download da URL '"
                         + fileURL
-                        + "'. Erro: " + e.getMessage();
+                        + "'.\nArtigo '"
+                        + article.getUrl()
+                        + "'.\nPublicação '"
+                        + article.getPublication().getUrl()
+                        + "'.\nErro: " + e.getMessage();
                 LOGGER.severe(message);
                 saveException(articleFileContext, message, e);
 
@@ -118,7 +127,12 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
 
                     String message = "Não foi possível salvar o conteúdo da URL '"
                             + fileURL
-                            + "'. Erro: " + e.getMessage();
+                            + "'.\nArtigo '"
+                            + article.getTitle()
+                            + "'.\nPublicação '"
+                            + article.getPublication().getName()
+                            + ".\nErro: "
+                            + e.getMessage();
                     LOGGER.severe(message);
                     this.saveException(articleFileContext, message, e);
 
@@ -132,7 +146,7 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
 
                 } catch (IOException e) {
 
-                    String message = "Inputstream não encerrado apropriadamente";
+                    String message = "Inputstream não encerrado apropriadamente.";
                     LOGGER.severe(message);
                     this.saveException(articleFileContext, message, e);
 
@@ -151,11 +165,7 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
 
     private void saveException(ArticleFileContext articleFileContext, String message, Exception e) {
         LOGGER.severe(message);
-        Error error = new Error();
-        error.setPublisher(articleFileContext.getArticle().getPublication().getPublisher());
-        error.setMessage(message);
-        error.setException(org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
-        this.errorService.save(error);
+        this.errorService.save(articleFileContext.getArticle().getPublication().getPublisher(), message, e);
 
     }
 

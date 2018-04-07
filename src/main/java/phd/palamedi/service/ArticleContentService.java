@@ -18,4 +18,7 @@ public class ArticleContentService {
         this.articleContentRepository.save(articleContent);
     }
 
+    public ArticleContent get(Integer id) {
+        return this.articleContentRepository.getOne(id);
+    }
 }
