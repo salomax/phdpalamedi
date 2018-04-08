@@ -5,6 +5,9 @@
     $.fn.renderPublisherDetails = function(id, data) {
         var self = this;
 
+        if (!data.totalArticles || data.totalArticles == 0)
+            return;
+
         var $row = $("<div class='row publisher-details'>");
         var $errorRow = $("<div class='row publisher-details'>");
         var $refresh = $('<button class="btn btn-default float-sm-right">Atualizar</button>');
@@ -27,17 +30,17 @@
         $errorRow.appendTo(this);
 
         var $col = $("<div class='col-sm-12 error'>");
-        $col.append(document.createTextNode(data.totalArticlesError));
+        $col.append(document.createTextNode(data.totalErrors));
         $col.append($("<small> erros encontrados</small>"));
         $col.appendTo($errorRow);
 
-        if (data.totalArticlesError > 0) {
+        if (data.totalErrors > 0) {
 
             var $errorLink = $('<button class="btn btn-danger errors">');
             $errorLink.appendTo($col);
             $errorLink.html("ver erros");
             $errorLink.bind('click', function() {
-                window.location.href = "/error.html?publisher_id=" + id;
+                window.location.href = "/errors.html?publisher_id=" + id;
             });
 
         }

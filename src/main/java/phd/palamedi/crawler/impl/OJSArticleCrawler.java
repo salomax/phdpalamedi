@@ -20,9 +20,9 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.KeyManagementException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.logging.Level;
@@ -129,6 +129,8 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
                 // Open connection
                 urlConnection = new URL(url).openConnection();
+                urlConnection.addRequestProperty("User-Agent", "Mozilla/4.76");
+
                 if (urlConnection == null) {
 
                     String message = "Não foi possível conectar em '" + url + "'";
@@ -352,7 +354,9 @@ public class OJSArticleCrawler implements ArticleCrawler {
                 String href = link.attr("href");
                 if (href.startsWith(article.getUrl())) {
                     pdfUrl = link.attr("href").replaceAll("article/view", "article/download");
-                    connections.add(new URL(pdfUrl).openConnection());
+                    URLConnection connection = new URL(pdfUrl).openConnection();
+                    connection.addRequestProperty("User-Agent", "Mozilla/4.76");
+                    connections.add(connection);
                 }
 
             }

@@ -6,8 +6,7 @@ package phd.palamedi.model;
 public class PublisherDetails {
 
     private int totalArticles;
-    private int totalArticlesSuccess;
-    private int totalArticlesError;
+    private int totalErrors;
 
     public int getTotalArticles() {
         return totalArticles;
@@ -17,19 +16,11 @@ public class PublisherDetails {
         this.totalArticles = totalArticles;
     }
 
-    public int getTotalArticlesSuccess() {
-        return totalArticlesSuccess;
+    public int getTotalErrors() {
+        return totalErrors;
     }
 
-    public void setTotalArticlesSuccess(int totalArticlesSuccess) {
-        this.totalArticlesSuccess = totalArticlesSuccess;
-    }
-
-    public int getTotalArticlesError() {
-        return totalArticlesError;
-    }
-
-    public void setTotalArticlesError(int totalArticlesError) {
-        this.totalArticlesError = totalArticlesError;
+    public void setTotalErrors(int totalErrors) {
+        this.totalErrors = totalErrors;
     }
 }

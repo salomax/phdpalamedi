@@ -22,7 +22,7 @@ public class PdfExtract {
     public String extract(InputStream inputStream) throws AcademicsException {
 
         try {
-            ContentHandler contenthandler = new BodyContentHandler();
+            ContentHandler contenthandler = new BodyContentHandler(200000);
             Metadata metadata = new Metadata();
             Parser parser = new AutoDetectParser(new DefaultDetector());
             parser.parse(inputStream, contenthandler, metadata, new ParseContext());

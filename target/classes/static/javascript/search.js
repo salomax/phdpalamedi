@@ -16,6 +16,11 @@
         var $buttonSearch = $('<button type="button" class="btn btn-success col-sm-3">Pesquisar</button>');
         $buttonSearch.appendTo($row);
 
+        var $help = $("<div class='row search'>");
+        $help.appendTo($row);
+
+        $help.append($('<a target="_blank" href="/helpsearch.html">Ajuda com a pesquisa?</a>'));
+
         var $resultBox = $('<div class="result-box">');
         $resultBox.appendTo($row);
 
@@ -195,15 +200,19 @@
         console.log('Searching by ' + search);
 
         $resultBox.empty();
-        $resultBox.append($('<span>Carregando...</span>'));
+        $resultBox.append($('<span>Pesquisando...</span>'));
 
         $.ajax({
             type: 'GET',
-            url: "/article?search=" + search,
+            url: "/article?search=" + encodeURIComponent(search),
             dataType: 'json',
             success: function(result) {
                 console.log('Article loaded successfully');
                 console.log(result);
+
+                $resultBox.empty();
+                $resultBox.append($('<span>Carregando resultado...</span>'));
+
                 self.renderSearchResult(result, $resultBox);
             }
         });

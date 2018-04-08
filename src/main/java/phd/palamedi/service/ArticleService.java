@@ -62,56 +62,33 @@ public class ArticleService {
     public SearchResponse findByContent(String search) {
 
         StringBuilder query = new StringBuilder();
-        List<String> terms = new ArrayList<>();
 
-        query.append("\nSELECT ac ");
-        query.append("\nFROM ArticleContent ac ");
-        query.append("\nWHERE ");
-        query.append("\n  ac.status = 0 ");
-
-        if (StringUtils.isNotEmpty(search)) {
-
-            query.append("AND (\n\t");
-
-            search = search.replaceAll("\\(", " ( ").replaceAll("\\)", " ) ");
-
-            StringTokenizer st = new StringTokenizer(search);
-            while (st.hasMoreTokens()) {
-
-                String criteria = st.nextToken();
-                if (criteria.equals("(") || criteria.equals(")")) {
-
-                    query.append(criteria);
-
-                } else if (criteria.equals("AND") || criteria.equals("OR")) {
-
-                    query.append("\n\t");
-                    query.append(criteria);
-                    query.append(" ");
-
-                } else {
-
-                    terms.add(criteria);
-                    query.append("ac.content like '");
-                    query.append("%");
-                    query.append(criteria);
-                    query.append("%");
-                    query.append("'");
-
-                }
-
-            }
-
-            query.append("\n  )");
-
-        }
+        query.append("\nSELECT tb_article_content.id, tb_article_content.status, tb_article_content.url, tb_article_content.article_id, NULL as content \n");
+        query.append("FROM tb_article \n");
+        query.append("  INNER JOIN tb_article_content \n");
+        query.append("      ON tb_article.id = tb_article_content.article_id ");
+        query.append("WHERE \n");
+        query.append("  tb_article_content.status = 0 AND ( \n");
+        query.append("        MATCH(tb_article_content.content) AGAINST('");
+        query.append(search);
+        query.append("' IN BOOLEAN MODE) \n");
+        query.append(") \n");
 
         LOGGER.info("Query: " + query.toString());
 
-        List<ArticleContent> articleContents = this.entityManager.createQuery(
+        List<ArticleContent> result = this.entityManager.createNativeQuery(
                 query.toString(), ArticleContent.class).getResultList();
 
-        return getSearchResponse(query, terms, articleContents);
+        Set<String> temp = new HashSet<>();
+        StringTokenizer token = new StringTokenizer(search.replaceAll("[\\*\\+\\-~()]", ""));
+        while (token.hasMoreTokens()) {
+            temp.add(token.nextToken());
+        }
+
+        List<String> terms = new ArrayList<>();
+        terms.addAll(temp);
+
+        return getSearchResponse(query, terms, result);
     }
 
     private SearchResponse getSearchResponse(StringBuilder query, List<String> terms, List<ArticleContent> articleContents) {

@@ -18,4 +18,8 @@ public interface ErrorRepository extends JpaRepository<Error, Integer> {
     void deleteByPublisher(Publisher publisher);
 
     List<Error> findByPublisher(Publisher publisher);
+
+    @Query("SELECT COUNT(1) FROM Error e WHERE e.publisher = ?1")
+    Integer countByPublisher(Publisher publisher);
+
 }

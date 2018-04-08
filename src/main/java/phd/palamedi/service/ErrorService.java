@@ -54,4 +54,8 @@ public class ErrorService {
         publisher.setId(publisherId);
         return this.errorRepository.findByPublisher(publisher);
     }
+
+    public Integer countByPublisher(Publisher publisher) {
+        return this.errorRepository.countByPublisher(publisher);
+    }
 }

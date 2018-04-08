@@ -48,6 +48,10 @@ div.card.error {
     color: #EF5350;
 }
 
+div.card.error p {
+    text-transform: none !important;
+}
+
 div.card.error .publisher {
     color: #424242;
     margin-bottom: 15px;
