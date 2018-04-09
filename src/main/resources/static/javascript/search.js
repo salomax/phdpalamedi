@@ -81,13 +81,32 @@
 
     }
 
-    $.fn.renderSearchResult = function(result, $resultBox) {
+    $.fn.renderSearchResult = function(search, result, $resultBox, currentPage) {
         var self = this;
         console.log('Rendering result');
 
         $resultBox.empty();
+
         $resultBox.append($('<div class="query"><pre>' + result.query + '</pre></div>'));
-        $resultBox.append($('<span class="count">Artigos encontrados: ' + result.articles.length + ' </span>'));
+        $resultBox.append($('<span class="count">Artigos encontrados: ' + result.total + ' </span>'));
+
+        var $pagination = $('<div class="pagination float-sm-right">');
+        $pagination.appendTo($resultBox);
+        $pagination.append(document.createTextNode("Páginas "));
+
+        currentPage = currentPage ? currentPage: 1;
+
+        for (i = 1; i < (result.total/100) + 1; i++) {
+            var $page = $('<span class="page">' + i + '</span>');
+            if (i == currentPage) {
+                $page.addClass('current');
+            }
+            $page.appendTo($pagination);
+            $page.attr('page', i);
+            $page.bind('click', function() {
+                self.search(search, $resultBox, $(this).attr('page'));
+            });
+        }
 
         result.articles.forEach(function(item) {
 
@@ -195,7 +214,7 @@
 
     };
 
-    $.fn.search = function(search, $resultBox) {
+    $.fn.search = function(search, $resultBox, page) {
         var self = this;
         console.log('Searching by ' + search);
 
@@ -204,7 +223,8 @@
 
         $.ajax({
             type: 'GET',
-            url: "/article?search=" + encodeURIComponent(search),
+            url: "/article?search=" + encodeURIComponent(search)
+                    + (page? '&page=' + page : ''),
             dataType: 'json',
             success: function(result) {
                 console.log('Article loaded successfully');
@@ -213,7 +233,7 @@
                 $resultBox.empty();
                 $resultBox.append($('<span>Carregando resultado...</span>'));
 
-                self.renderSearchResult(result, $resultBox);
+                self.renderSearchResult(search, result, $resultBox, page);
             }
         });
 

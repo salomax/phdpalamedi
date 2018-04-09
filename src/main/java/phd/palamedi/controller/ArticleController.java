@@ -2,6 +2,7 @@ package phd.palamedi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import phd.palamedi.exception.AcademicsException;
 import phd.palamedi.model.Article;
 import phd.palamedi.response.SearchResponse;
 import phd.palamedi.service.ArticleService;
@@ -20,8 +21,10 @@ public class ArticleController {
     private ArticleService articleService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public SearchResponse search(@RequestParam("search") String search) {
-        return this.articleService.findByContent(search);
+    public SearchResponse search(@RequestParam("search") String search,
+                                 @RequestParam(value = "page", required = false, defaultValue = "1") Integer page)
+            throws AcademicsException {
+        return this.articleService.findByContent(search, page);
     }
 
     @RequestMapping(value = "/filter", method = RequestMethod.GET)

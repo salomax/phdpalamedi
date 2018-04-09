@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import phd.palamedi.exception.AcademicsException;
 import phd.palamedi.model.Article;
 import phd.palamedi.model.ArticleContent;
 import phd.palamedi.model.Tag;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class ArticleService {
 
     private static final Logger LOGGER = Logger.getLogger(ArticleService.class.toString());
+    private static final Integer ROWS_PAGE = 100;
 
     @Autowired
     private EntityManager entityManager;
@@ -55,11 +57,11 @@ public class ArticleService {
                 query.toString(), ArticleContent.class).setParameter("tags", tags)
                 .getResultList();
 
-        return getSearchResponse(query, tags, articleContents);
+        return getSearchResponse(query, tags, articleContents, articleContents.size());
     }
 
 
-    public SearchResponse findByContent(String search) {
+    public SearchResponse findByContent(String search, Integer page) throws AcademicsException {
 
         StringBuilder query = new StringBuilder();
 
@@ -88,17 +90,48 @@ public class ArticleService {
         List<String> terms = new ArrayList<>();
         terms.addAll(temp);
 
-        return getSearchResponse(query, terms, result);
+        List<ArticleContent> resultPage = getPage(result, page);
+
+        return getSearchResponse(query, terms, resultPage, result.size());
     }
 
-    private SearchResponse getSearchResponse(StringBuilder query, List<String> terms, List<ArticleContent> articleContents) {
+    private List<ArticleContent> getPage(List<ArticleContent> result, Integer page) throws AcademicsException {
+
+        if (((double) result.size()/ROWS_PAGE) > 1.0) {
+
+            int from = 0 + ((page - 1) * ROWS_PAGE);
+            int to = from + ROWS_PAGE;
+
+            if (to > result.size()) {
+                to = result.size();
+            }
+
+            try {
+
+                return result.subList(from, to);
+            } catch (IndexOutOfBoundsException e) {
+                throw new AcademicsException("Page not found " + page, e);
+            }
+
+
+        } else {
+
+            return result;
+
+        }
+
+    }
+
+    private SearchResponse getSearchResponse(
+            StringBuilder query, List<String> terms, List<ArticleContent> articleContents, Integer total) {
+
         SearchResponse searchResponse = new SearchResponse();
 
+        searchResponse.setTotal(total);
         searchResponse.setTerms(terms);
-
         searchResponse.setQuery(query.toString());
 
-        Map<Integer, ArticleResponse> articles = new HashMap<>();
+        Map<Integer, ArticleResponse> articles = new LinkedHashMap<>();
 
         for (ArticleContent articleContent : articleContents) {
 

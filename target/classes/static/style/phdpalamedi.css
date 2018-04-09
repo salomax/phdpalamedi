@@ -233,3 +233,15 @@ div.tag tags {
     border: none;
 }
 
+div.pagination span.page {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+div.pagination span.current {
+    background-color: #28a745;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+
