@@ -7,11 +7,13 @@ import phd.palamedi.model.*;
 import phd.palamedi.repository.ArticleRepository;
 import phd.palamedi.repository.PublicationRepository;
 import phd.palamedi.repository.PublisherRepository;
+import phd.palamedi.response.PublisherResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by marcos.salomao on 24/3/18.

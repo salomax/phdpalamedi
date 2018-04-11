@@ -39,6 +39,122 @@
         return this;
     };
 
+
+    $.fn.renderFilterResult = function(result, $resultBox) {
+        var self = this;
+        console.log('Rendering result');
+
+        $resultBox.empty();
+
+        $resultBox.append($('<div class="query"><pre>' + result.query + '</pre></div>'));
+        $resultBox.append($('<span class="count">Artigos encontrados: ' + result.total + ' </span>'));
+
+        result.articles.forEach(function(item) {
+
+            var $resultItem = $('<div class="result-item">');
+            $resultItem.appendTo($resultBox);
+
+            var $row = $('<div><span>' + item.title + '</span></div>');
+            $row.appendTo($resultItem);
+
+            var $row = $('<div><a target="_blank" href="' + item.url + '">' + item.url + '</a></div>');
+            $row.appendTo($resultItem);
+
+            var $row = $('<div class="tag">');
+            $row.appendTo($resultItem);
+
+            $row.renderTags(item, result.tags);
+
+            var $row = $('<div class="author"><span>' + item.author + '</span></div>');
+            $row.appendTo($resultItem);
+
+            var $row = $('<div class="abstract"><span>' + item.summary + '</span></div>');
+            $row.mark(result.terms, { diacritics: true });
+            $row.appendTo($resultItem);
+
+            var $row = $('<div class="keywords"><span>' + item.keywords + '</span></div>');
+            $row.mark(result.terms, { diacritics: true });
+            $row.appendTo($resultItem);
+
+            var $row = $('<div class="publisher"><span>' + item.publication.publisher + '</span></div>');
+            $row.appendTo($resultItem);
+
+            var $row = $('<div class="publication-version"><span>' + item.publication.name + '</span></div>');
+            $row.appendTo($resultItem);
+
+            if (item.publication.year) {
+                var $row = $('<div class="publication-year"><span>' + item.publication.year + '</span></div>');
+                $row.appendTo($resultItem);
+            }
+
+            var $row = $('<div class="publication-url"><a target="_blank" href="' + item.publication.url + '">' + item.publication.url + '</a></div>');
+            $row.appendTo($resultItem);
+
+            var $viewButtons = $('<div class="btn-group btn-group-views" role="group">');
+            $viewButtons.appendTo($resultItem);
+
+            if (item.articleContents) {
+
+                var $row = $('<div class="download"><span>Arquivos</span></div>');
+                $row.appendTo($resultItem);
+
+                item.articleContents.forEach(function(download) {
+
+                    var $row = $('<div class="publication-download"><a target="_blank" href="' + download.url + '">' + download.url + '</a></div>');
+                    $row.appendTo($resultItem);
+
+                    var $viewContent = $('<button class="btn btn-secondary">Ver Texto</button>');
+                    $viewContent.appendTo($row);
+
+                    var $content = $('<div class="article-content">');
+                    $content.appendTo($resultItem);
+                    $content.hide();
+                    $viewContent.unbind();
+
+                    var openContent = function() {
+
+                        $.ajax({
+                            type: 'GET',
+                            url: "/articlecontent/" + download.id,
+                            dataType: 'json',
+                            success: function(article){
+
+                                console.log('Article loaded successfully');
+                                console.log(article);
+
+                                var $pre = $('<pre class="article-content">');
+                                $pre.appendTo($content);
+                                $pre.html(article.content);
+                                $pre.mark(result.terms, { diacritics: true });
+
+                                $content.show();
+
+                                $viewContent.html('Fechar Texto');
+                                $viewContent.unbind();
+                                $viewContent.bind('click', function() {
+                                    $content.hide();
+                                    $content.html('');
+                                    $viewContent.html('Ver Texto');
+                                    $viewContent.unbind();
+                                    $viewContent.bind('click', openContent);
+                                });
+
+                            }
+
+                        });
+
+                    };
+
+                    $viewContent.bind('click', openContent);
+
+                });
+
+            }
+
+        });
+
+    };
+
     $.fn.filter = function(tags, $resultBox) {
         var self = this;
         console.log('Filtering by tags', tags);
@@ -53,7 +169,7 @@
             success: function(result) {
                 console.log('Article loaded successfully');
                 console.log(result);
-                self.renderSearchResult(result, $resultBox);
+                self.renderFilterResult(result, $resultBox);
             }
         });
 

@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import phd.palamedi.model.Publisher;
 import phd.palamedi.model.PublisherDetails;
+import phd.palamedi.response.PublisherResponse;
 import phd.palamedi.service.PublisherService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by marcos.salomao on 24/3/18.
@@ -22,8 +24,9 @@ public class PublisherController {
     private PublisherService publisherService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Publisher> get() {
-        return this.publisherService.findAll();
+    public List<PublisherResponse> get() {
+        return this.publisherService.findAll().stream()
+                .map(publisher -> new PublisherResponse(publisher)).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)

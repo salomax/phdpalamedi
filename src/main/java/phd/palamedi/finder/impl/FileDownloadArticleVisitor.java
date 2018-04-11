@@ -1,25 +1,21 @@
 package phd.palamedi.finder.impl;
 
-import com.sun.istack.internal.NotNull;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import phd.palamedi.extract.PdfExtract;
 import phd.palamedi.finder.ArticleVisitor;
 import phd.palamedi.finder.VisitContext;
-import phd.palamedi.model.*;
-import phd.palamedi.model.Error;
+import phd.palamedi.model.Article;
+import phd.palamedi.model.ArticleContent;
+import phd.palamedi.model.ArticleFileConnection;
+import phd.palamedi.model.Status;
 import phd.palamedi.service.ArticleContentService;
-import phd.palamedi.service.ArticleService;
 import phd.palamedi.service.ErrorService;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
-import java.net.URLDecoder;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -41,7 +37,7 @@ public class FileDownloadArticleVisitor implements ArticleVisitor {
     private PdfExtract pdfExtract;
 
     @Override
-    public void visit(@NotNull VisitContext context) {
+    public void visit(VisitContext context) {
 
         if (context instanceof ArticleFileContext) {
 

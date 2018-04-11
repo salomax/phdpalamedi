@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 import phd.palamedi.crawler.ArticleCrawler;
+import phd.palamedi.crawler.OJSSelector;
 import phd.palamedi.finder.ArticleVisitor;
 import phd.palamedi.finder.VisitContext;
 import phd.palamedi.finder.impl.ArticleFileContext;
@@ -20,7 +21,6 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.cert.X509Certificate;
@@ -57,10 +57,12 @@ public class OJSArticleCrawler implements ArticleCrawler {
     @Autowired
     private ErrorService errorService;
 
+    @Autowired
+    private OJSSelectorFactory selectorFactory;
+
+
     public OJSArticleCrawler() {
-
         setupSSL();
-
     }
 
     private void setupSSL() {
@@ -166,17 +168,19 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
         LOGGER.info("Searching publications " + url);
 
-        List<Element> elements = this.openURL(publisher, url, "div[id=issues]");
+        OJSSelector selector = this.selectorFactory.get(publisher);
+
+        List<Element> elements = this.openURL(publisher, url, selector.getIssuesArchive());
 
         // Search by issues (summary)
         List<Element> issues = new ArrayList<>();
         for (Element element : elements) {
-            issues.addAll(element.select("div[id^=issue]"));
+            issues.addAll(element.select(selector.getIssues()));
         }
 
         // Search articles
         for (Element issue : issues) {
-            this.executor.execute(() -> this.savePublication(issue, publisher));
+            this.executor.execute(() -> this.savePublication(issue, publisher, selector));
         }
 
     }
@@ -185,15 +189,15 @@ public class OJSArticleCrawler implements ArticleCrawler {
         return issue.selectFirst("a").attr("href") + "/showToc";
     }
 
-    private String getArticleUrl(Element article) {
-        return article.select(".tocTitle a").attr("href");
+    private String getArticleUrl(Element article, OJSSelector selector) {
+        return article.select(selector.getArticleUrl()).attr("href");
     }
 
-    protected void savePublication(Element issue, Publisher publisher) {
+    protected void savePublication(Element issue, Publisher publisher, OJSSelector selector) {
 
         String url = this.extractPublicationURL(issue);
 
-        List<Element> elements = this.openURL(publisher, url, "body");
+        List<Element> elements = this.openURL(publisher, url, selector.getPublicationContent());
 
         List<Element> articles;
 
@@ -205,7 +209,7 @@ public class OJSArticleCrawler implements ArticleCrawler {
             publication.setPublisher(publisher);
             publication.setUrl(url);
 
-            List<Element> titles = element.select("h2,h3");
+            List<Element> titles = element.select(selector.getPublicationTitle());
             for (Element title : titles) {
 
                 Matcher matcher = Pattern.compile("20\\d{2}").matcher(title.text());
@@ -222,10 +226,10 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
             this.publicationService.save(publication);
 
-            articles = element.select("table.tocArticle");
+            articles = element.select(selector.getArticles());
 
             for (Element article : articles) {
-                this.executor.execute(() -> this.saveArticle(article, publication));
+                this.executor.execute(() -> this.saveArticle(article, publication, selector));
             }
 
         }
@@ -247,16 +251,16 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
     }
 
-    protected void saveArticle(Element article, Publication publication) {
+    protected void saveArticle(Element article, Publication publication, OJSSelector selector) {
 
         // Extract article link
-        String articleUrl = this.getArticleUrl(article);
+        String articleUrl = this.getArticleUrl(article, selector);
 
         if (StringUtils.isNotEmpty(articleUrl)) {
 
             LOGGER.info("Article found " + articleUrl);
 
-            this.saveArticle(articleUrl, publication);
+            this.saveArticle(articleUrl, publication, selector);
 
         } else {
 
@@ -275,23 +279,23 @@ public class OJSArticleCrawler implements ArticleCrawler {
 
     }
 
-    protected void saveArticle(String articleUrl, Publication publication) {
+    protected void saveArticle(String articleUrl, Publication publication, OJSSelector selector) {
 
-        List<Element> articles = this.openURL(publication.getPublisher(), articleUrl, "div[id=content]");
+        List<Element> articles = this.openURL(publication.getPublisher(), articleUrl, selector.getArticleContent());
 
         for (Element element : articles) {
 
             final Article article = new Article();
             article.setPublication(publication);
             article.setUrl(articleUrl);
-            article.setTitle(getText(element, "div[id=articleTitle]"));
-            article.setSummary(removePrefix(getText(element, "div[id=articleAbstract]"), "Resumo"));
-            article.setAuthor(getText(element, "div[id=authorString]"));
-            article.setKeywords(removePrefix(getText(element, "div[id=articleSubject]"), "Palavras-chave"));
+            article.setTitle(getText(element, selector.getArticleTitle()));
+            article.setSummary(removePrefix(getText(element, selector.getArticleSummary()), "Resumo"));
+            article.setAuthor(getText(element, selector.getArticleAuthor()));
+            article.setKeywords(removePrefix(getText(element, selector.getKeywords()), "Palavras-chave"));
 
             this.articleService.save(article);
 
-            List<URLConnection> downloads = this.findDownloads(element, article);
+            List<URLConnection> downloads = this.findDownloads(element, article, selector);
             if (downloads != null) {
 
                 ArticleFileConnection articleFile = new ArticleFileConnection(downloads);
@@ -340,13 +344,13 @@ public class OJSArticleCrawler implements ArticleCrawler {
         return "";
     }
 
-    private List<URLConnection> findDownloads(Element element, Article article) {
+    private List<URLConnection> findDownloads(Element element, Article article, OJSSelector selector) {
 
         List<URLConnection> connections = new ArrayList<>();
         String pdfUrl;
 
         // Search for PDF download
-        List<Element> links = element.select("a.file");
+        List<Element> links = element.select(selector.getDownloadFile());
         try {
 
             for (Element link : links) {
