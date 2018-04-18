@@ -12,4 +12,6 @@ public interface PublicationRepository extends CrudRepository<Publication, Integ
 
     @Transactional
     void deleteByPublisher(Publisher publisher);
+
+    Publication getByPublisherAndName(Publisher publisher, String publicationName);
 }

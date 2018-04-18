@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import phd.palamedi.exception.AcademicsException;
 import phd.palamedi.model.Article;
 import phd.palamedi.model.ArticleContent;
+import phd.palamedi.model.Publication;
 import phd.palamedi.model.Tag;
 import phd.palamedi.repository.ArticleRepository;
 import phd.palamedi.response.ArticleContentResponse;
@@ -71,9 +72,15 @@ public class ArticleService {
         query.append("      ON tb_article.id = tb_article_content.article_id ");
         query.append("WHERE \n");
         query.append("  tb_article_content.status = 0 AND ( \n");
+
         query.append("        MATCH(tb_article_content.content) AGAINST('");
         query.append(search);
         query.append("' IN BOOLEAN MODE) \n");
+
+        query.append("        OR MATCH(tb_article.title, tb_article.author, tb_article.summary, tb_article.keywords) AGAINST('");
+        query.append(search);
+        query.append("' IN BOOLEAN MODE) \n");
+
         query.append(") \n");
 
         LOGGER.info("Query: " + query.toString());
@@ -171,4 +178,7 @@ public class ArticleService {
         this.articleRepository.save(article);
     }
 
+    public Article getByPublicationAndTitle(Publication publication, String articleTitle) {
+        return this.articleRepository.getByPublicationAndTitle(publication, articleTitle);
+    }
 }

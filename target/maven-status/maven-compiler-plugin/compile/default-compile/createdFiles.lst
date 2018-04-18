@@ -15,11 +15,15 @@ phd/palamedi/response/ArticleContentResponse.class
 phd/palamedi/response/PublisherResponse.class
 phd/palamedi/repository/ArticleContentRepository.class
 phd/palamedi/model/Article.class
+phd/palamedi/crawler/impl/CompolisticaOJSSelector.class
 phd/palamedi/model/Finder.class
 phd/palamedi/service/ArticleContentService.class
 phd/palamedi/crawler/impl/OJSArticleCrawler$1.class
+phd/palamedi/loader/ArticleLoader.class
+phd/palamedi/crawler/impl/DefaultOJSSelector.class
 phd/palamedi/finder/SummaryGenerator.class
 phd/palamedi/service/TagService.class
+phd/palamedi/crawler/impl/OJSSelectorFactory.class
 phd/palamedi/compress/CompressedOutputStream.class
 phd/palamedi/crawler/ArticleCrawler.class
 phd/palamedi/repository/PublisherRepository.class
@@ -32,6 +36,7 @@ phd/palamedi/PhdPalamediApp.class
 phd/palamedi/model/PublisherFilter.class
 phd/palamedi/service/ErrorService.class
 phd/palamedi/controller/PublisherController.class
+phd/palamedi/crawler/impl/EccomOJSSelector.class
 phd/palamedi/finder/ArticleFinder.class
 phd/palamedi/model/PublisherDetails.class
 phd/palamedi/model/Publication.class
@@ -41,6 +46,8 @@ phd/palamedi/crawler/impl/OJSArticleCrawler.class
 phd/palamedi/controller/TaskExecutorController.class
 phd/palamedi/repository/ErrorRepository.class
 phd/palamedi/model/Publisher.class
+phd/palamedi/loader/ArticleImporter.class
+phd/palamedi/loader/JSONLoader.class
 phd/palamedi/extract/PdfExtract.class
 phd/palamedi/exception/AcademicsException.class
 phd/palamedi/service/PublisherService.class
@@ -49,6 +56,7 @@ phd/palamedi/response/SearchResponse.class
 phd/palamedi/controller/ErrorController.class
 phd/palamedi/response/ArticleResponse.class
 phd/palamedi/service/ArticleService.class
+phd/palamedi/crawler/OJSSelector.class
 phd/palamedi/model/Summary.class
 phd/palamedi/model/Status.class
 phd/palamedi/response/ErrorResponse.class

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import phd.palamedi.model.Article;
 import phd.palamedi.model.ArticleContent;
 import phd.palamedi.model.Publisher;
 import phd.palamedi.repository.ArticleContentRepository;
@@ -45,5 +46,9 @@ public class ArticleContentService {
         this.entityManager.createNativeQuery(deleteQuery.toString())
             .setParameter(1, publisher.getId()).executeUpdate();
 
+    }
+
+    public ArticleContent getByArticleAndUrl(Article article, String articleDownloadUrl) {
+        return this.articleContentRepository.getByArticleAndUrl(article, articleDownloadUrl);
     }
 }

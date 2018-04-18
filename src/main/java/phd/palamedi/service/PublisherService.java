@@ -85,4 +85,13 @@ public class PublisherService {
         return details;
 
     }
+
+    public void save(Publisher publisher) {
+        this.publisherRepository.save(publisher);
+    }
+
+    public Publisher getByName(String publisherName) {
+        return this.publisherRepository.getByName(publisherName);
+    }
+
 }

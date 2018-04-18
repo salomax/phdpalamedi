@@ -114,6 +114,7 @@
             $resultItem.appendTo($resultBox);
 
             var $row = $('<div><span>' + item.title + '</span></div>');
+            $row.mark(result.terms, { diacritics: true });
             $row.appendTo($resultItem);
 
             var $row = $('<div><a target="_blank" href="' + item.url + '">' + item.url + '</a></div>');
@@ -125,6 +126,7 @@
             $row.renderTags(item, result.tags);
 
             var $row = $('<div class="author"><span>' + item.author + '</span></div>');
+            $row.mark(result.terms, { diacritics: true });
             $row.appendTo($resultItem);
 
             var $row = $('<div class="abstract"><span>' + item.summary + '</span></div>');

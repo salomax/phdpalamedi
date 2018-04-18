@@ -16,4 +16,6 @@ import java.util.List;
  */
 public interface ArticleContentRepository extends JpaRepository<ArticleContent, Integer> {
 
+    ArticleContent getByArticleAndUrl(Article article, String articleDownloadUrl);
+
 }
