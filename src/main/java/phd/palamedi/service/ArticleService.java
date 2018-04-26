@@ -1,5 +1,7 @@
 package phd.palamedi.service;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,7 +64,7 @@ public class ArticleService {
     }
 
 
-    public SearchResponse findByContent(String search, Integer page) throws AcademicsException {
+    public SearchResponse findByContent(final String search, Integer page, List<String> fields) throws AcademicsException {
 
         StringBuilder query = new StringBuilder();
 
@@ -73,13 +75,24 @@ public class ArticleService {
         query.append("WHERE \n");
         query.append("  tb_article_content.status = 0 AND ( \n");
 
-        query.append("        MATCH(tb_article_content.content) AGAINST('");
-        query.append(search);
-        query.append("' IN BOOLEAN MODE) \n");
+        List<String> filters =  new ArrayList<>();
+        StringBuilder filter;
 
-        query.append("        OR MATCH(tb_article.title, tb_article.author, tb_article.summary, tb_article.keywords) AGAINST('");
-        query.append(search);
-        query.append("' IN BOOLEAN MODE) \n");
+        if (fields.contains("content")) {
+
+            filter = new StringBuilder();
+            query.append("        MATCH(tb_article_content.content) AGAINST('");
+            query.append(search);
+            query.append("' IN BOOLEAN MODE) \n");
+            filters.add(filter.toString());
+
+        }
+
+        Lists.newArrayList("title", "author", "summary", "keywords").stream()
+                .filter(f -> fields.contains(f))
+                .forEach(f -> addFilter(filters, f, search));
+
+        query.append(String.join("        OR ", filters));
 
         query.append(") \n");
 
@@ -100,6 +113,19 @@ public class ArticleService {
         List<ArticleContent> resultPage = getPage(result, page);
 
         return getSearchResponse(query, terms, resultPage, result.size());
+    }
+
+    private void addFilter(List<String> filters, String f, String search) {
+
+        StringBuilder query = new StringBuilder();
+        query.append("MATCH(");
+        query.append("tb_article.");
+        query.append(f);
+        query.append(") AGAINST('");
+        query.append(search);
+        query.append("' IN BOOLEAN MODE) \n");
+
+        filters.add(query.toString());
     }
 
     private List<ArticleContent> getPage(List<ArticleContent> result, Integer page) throws AcademicsException {

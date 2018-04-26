@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 @Service
 public class ArticleImporter {
 
-    private static final Logger LOGGER = Logger.getLogger(JSONLoader.class.toString());
+    private static final Logger LOGGER = Logger.getLogger(JSONLoaderController.class.toString());
 
     @Autowired
     private PublisherService publisherService;

@@ -3,6 +3,7 @@ phd/palamedi/model/ThreadPoolMonitor.class
 phd/palamedi/finder/FinderDefinition.class
 phd/palamedi/response/ContentResponse.class
 phd/palamedi/service/PublicationService.class
+phd/palamedi/loader/JSONLoaderController.class
 phd/palamedi/crawler/impl/OJSArticleCrawler$2.class
 phd/palamedi/model/ArticleContent.class
 phd/palamedi/controller/TagController.class
@@ -47,7 +48,6 @@ phd/palamedi/controller/TaskExecutorController.class
 phd/palamedi/repository/ErrorRepository.class
 phd/palamedi/model/Publisher.class
 phd/palamedi/loader/ArticleImporter.class
-phd/palamedi/loader/JSONLoader.class
 phd/palamedi/extract/PdfExtract.class
 phd/palamedi/exception/AcademicsException.class
 phd/palamedi/service/PublisherService.class

@@ -244,4 +244,8 @@ div.pagination span.current {
     padding-right: 3px;
 }
 
+label.checkbox-inline {
+    margin-right: 15px;
+}
+
 

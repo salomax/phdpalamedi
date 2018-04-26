@@ -1,6 +1,7 @@
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/repository/PublisherRepository.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/response/ContentResponse.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/model/PublisherUrl.java
+/octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/loader/JSONLoaderController.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/finder/SummaryGenerator.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/model/ArticleContent.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/model/Tag.java
@@ -61,4 +62,3 @@
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/model/Summary.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/exception/AcademicsException.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/model/Finder.java
-/octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/loader/JSONLoader.java

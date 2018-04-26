@@ -16,6 +16,24 @@
         var $buttonSearch = $('<button type="button" class="btn btn-success col-sm-3">Pesquisar</button>');
         $buttonSearch.appendTo($row);
 
+        var $filter = $("<div class='row filter'>");
+        $filter.appendTo($row);
+
+        var $field = $("<label class='checkbox-inline'><input type='checkbox' value='title' checked> Título</label>");
+        $field.appendTo($filter);
+
+        var $field = $("<label class='checkbox-inline'><input type='checkbox' value='summary' checked> Resumo</label>");
+        $field.appendTo($filter);
+
+        var $field = $("<label class='checkbox-inline'><input type='checkbox' value='author' checked> Autor</label>");
+        $field.appendTo($filter);
+
+        var $field = $("<label class='checkbox-inline'><input type='checkbox' value='keywords' checked> Palavra-chave</label>");
+        $field.appendTo($filter);
+
+        var $field = $("<label class='checkbox-inline'><input type='checkbox' value='content' checked> Conteúdo</label>");
+        $field.appendTo($filter);
+
         var $help = $("<div class='row search'>");
         $help.appendTo($row);
 
@@ -223,10 +241,15 @@
         $resultBox.empty();
         $resultBox.append($('<span>Pesquisando...</span>'));
 
+        var filters = $('div.filter input:checked').map(function(i, val) {
+            return $(val).val();
+        });
+
         $.ajax({
             type: 'GET',
             url: "/article?search=" + encodeURIComponent(search)
-                    + (page? '&page=' + page : ''),
+                    + (page? '&page=' + page : '')
+                    + (filters && filters.length > 0 ? '&filters=' + filters.toArray().join(',') : ''),
             dataType: 'json',
             success: function(result) {
                 console.log('Article loaded successfully');
