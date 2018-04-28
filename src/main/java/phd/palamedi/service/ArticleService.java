@@ -41,7 +41,6 @@ public class ArticleService {
 
     public SearchResponse findByTags(List<String> tags) {
 
-        SearchResponse searchResponse = new SearchResponse();
         StringBuilder query = new StringBuilder();
 
         query.append("\nSELECT ac ");
@@ -60,7 +59,12 @@ public class ArticleService {
                 query.toString(), ArticleContent.class).setParameter("tags", tags)
                 .getResultList();
 
-        return getSearchResponse(query, tags, articleContents, articleContents.size());
+        List<ArticleResponse> articles = getArticles(articleContents);
+        return getSearchResponse(query, tags, articles, articles.size());
+    }
+
+    public SearchResponse findByContent(String search, List<String> filters) throws AcademicsException {
+        return this.findByContent(search, null, filters);
     }
 
 
@@ -110,9 +114,35 @@ public class ArticleService {
         List<String> terms = new ArrayList<>();
         terms.addAll(temp);
 
-        List<ArticleContent> resultPage = getPage(result, page);
+        List<ArticleResponse> resultPage = getArticles(result);
+        int total = resultPage.size();
+        if (page != null) {
+            resultPage = getPage(resultPage, page);
+        }
 
-        return getSearchResponse(query, terms, resultPage, result.size());
+        return getSearchResponse(query, terms, resultPage, total);
+    }
+
+    private List<ArticleResponse> getArticles(List<ArticleContent> articleContents) {
+
+        Map<Integer, ArticleResponse> articles = new LinkedHashMap<>();
+
+        for (ArticleContent articleContent : articleContents) {
+
+            ArticleResponse articleResponse;
+            if (!articles.containsKey(articleContent.getArticle().getId())) {
+                articleResponse = new ArticleResponse(articleContent.getArticle());
+                articles.put(articleContent.getArticle().getId(), articleResponse);
+            } else {
+                articleResponse = articles.get(articleContent.getArticle().getId());
+            }
+
+            articleResponse.setTags(this.tagService.listTagByUrl(articleResponse.getUrl()));
+            articleResponse.getArticleContents().add(new ArticleContentResponse(articleContent));
+        }
+
+        return articles.values().stream().collect(Collectors.toList());
+
     }
 
     private void addFilter(List<String> filters, String f, String search) {
@@ -128,7 +158,7 @@ public class ArticleService {
         filters.add(query.toString());
     }
 
-    private List<ArticleContent> getPage(List<ArticleContent> result, Integer page) throws AcademicsException {
+    private List<ArticleResponse> getPage(List<ArticleResponse> result, Integer page) throws AcademicsException {
 
         if (((double) result.size()/ROWS_PAGE) > 1.0) {
 
@@ -156,33 +186,14 @@ public class ArticleService {
     }
 
     private SearchResponse getSearchResponse(
-            StringBuilder query, List<String> terms, List<ArticleContent> articleContents, Integer total) {
+            StringBuilder query, List<String> terms, List<ArticleResponse> articles, Integer total) {
 
         SearchResponse searchResponse = new SearchResponse();
 
         searchResponse.setTotal(total);
         searchResponse.setTerms(terms);
         searchResponse.setQuery(query.toString());
-
-        Map<Integer, ArticleResponse> articles = new LinkedHashMap<>();
-
-        for (ArticleContent articleContent : articleContents) {
-
-            ArticleResponse articleResponse;
-            if (!articles.containsKey(articleContent.getArticle().getId())) {
-                articleResponse = new ArticleResponse(articleContent.getArticle());
-                articles.put(articleContent.getArticle().getId(), articleResponse);
-            } else {
-                articleResponse = articles.get(articleContent.getArticle().getId());
-            }
-
-            articleResponse.setTags(this.tagService.listTagByUrl(articleResponse.getUrl()));
-
-            articleResponse.getArticleContents().add(new ArticleContentResponse(articleContent));
-        }
-
-        searchResponse.setArticles(articles.values().stream().collect(Collectors.toList()));
-
+        searchResponse.setArticles(articles);
         searchResponse.setTags(this.tagService.findAllTags());
 
         return searchResponse;
@@ -207,4 +218,5 @@ public class ArticleService {
     public Article getByPublicationAndTitle(Publication publication, String articleTitle) {
         return this.articleRepository.getByPublicationAndTitle(publication, articleTitle);
     }
+
 }

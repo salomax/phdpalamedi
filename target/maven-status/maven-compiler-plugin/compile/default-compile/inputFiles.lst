@@ -25,6 +25,7 @@
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/model/Publication.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/service/TagService.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/crawler/impl/OJSArticleCrawler.java
+/octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/controller/ArticleExcelView.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/loader/ArticleImporter.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/response/ErrorResponse.java
 /octus/tmp/interview/test/Academics Article Finder/src/main/java/phd/palamedi/crawler/impl/OJSSelectorFactory.java

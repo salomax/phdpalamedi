@@ -108,6 +108,14 @@
         $resultBox.append($('<div class="query"><pre>' + result.query + '</pre></div>'));
         $resultBox.append($('<span class="count">Artigos encontrados: ' + result.total + ' </span>'));
 
+        if (result.total > 0) {
+            var $export = $('<button class="button btn btn-primary">Exportar para Excel</button>');
+            $export.appendTo($resultBox);
+            $export.bind('click', function() {
+               self.exportSearch(search);
+            });
+        }
+
         var $pagination = $('<div class="pagination float-sm-right">');
         $pagination.appendTo($resultBox);
         $pagination.append(document.createTextNode("Páginas "));
@@ -265,6 +273,19 @@
         return this;
     };
 
+    $.fn.exportSearch = function(search) {
+        var self = this;
+        console.log('Searching by ' + search);
+
+        var filters = $('div.filter input:checked').map(function(i, val) {
+            return $(val).val();
+        });
+
+        var url = "/article/excel?search=" + encodeURIComponent(search)
+            + (filters && filters.length > 0 ? '&filters=' + filters.toArray().join(',') : '');
+
+        window.open(url, '_blank');
+    };
 
 })(jQuery);
 

@@ -4,6 +4,7 @@ phd/palamedi/finder/FinderDefinition.class
 phd/palamedi/response/ContentResponse.class
 phd/palamedi/service/PublicationService.class
 phd/palamedi/loader/JSONLoaderController.class
+phd/palamedi/controller/ArticleExcelView.class
 phd/palamedi/crawler/impl/OJSArticleCrawler$2.class
 phd/palamedi/model/ArticleContent.class
 phd/palamedi/controller/TagController.class

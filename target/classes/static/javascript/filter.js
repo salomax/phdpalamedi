@@ -40,7 +40,7 @@
     };
 
 
-    $.fn.renderFilterResult = function(result, $resultBox) {
+    $.fn.renderFilterResult = function(result, $resultBox, tags) {
         var self = this;
         console.log('Rendering result');
 
@@ -48,6 +48,14 @@
 
         $resultBox.append($('<div class="query"><pre>' + result.query + '</pre></div>'));
         $resultBox.append($('<span class="count">Artigos encontrados: ' + result.total + ' </span>'));
+
+        if (result.total > 0) {
+            var $export = $('<button class="button btn btn-primary">Exportar para Excel</button>');
+            $export.appendTo($resultBox);
+            $export.bind('click', function() {
+                self.exportFilter(tags);
+            });
+        }
 
         result.articles.forEach(function(item) {
 
@@ -169,11 +177,20 @@
             success: function(result) {
                 console.log('Article loaded successfully');
                 console.log(result);
-                self.renderFilterResult(result, $resultBox);
+                self.renderFilterResult(result, $resultBox, tags);
             }
         });
 
         return this;
+    };
+
+    $.fn.exportFilter = function(tags) {
+        var self = this;
+        console.log('Filtering by tags', tags);
+
+        var url = "/article/filter/excel?tags=" + tags;
+
+        window.open(url, '_blank');
     };
 
 
