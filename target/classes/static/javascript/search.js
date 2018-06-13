@@ -146,10 +146,10 @@
             var $row = $('<div><a target="_blank" href="' + item.url + '">' + item.url + '</a></div>');
             $row.appendTo($resultItem);
 
-            var $row = $('<div class="tag">');
-            $row.appendTo($resultItem);
-
-            $row.renderTags(item, result.tags);
+            // var $row = $('<div class="tag">');
+            // $row.appendTo($resultItem);
+            //
+            // $row.renderTags(item, result.tags);
 
             var $row = $('<div class="author"><span>' + item.author + '</span></div>');
             $row.mark(result.terms, { diacritics: true });
