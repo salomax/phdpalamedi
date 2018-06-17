@@ -8,17 +8,17 @@ import java.util.List;
  */
 public class SearchResponse {
 
-    private Integer total;
+    private Long total;
     private String query;
     private List<ArticleResponse> articles;
     List<String> terms = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
-    public Integer getTotal() {
+    public Long getTotal() {
         return total;
     }
 
-    public void setTotal(Integer total) {
+    public void setTotal(Long total) {
         this.total = total;
     }
 

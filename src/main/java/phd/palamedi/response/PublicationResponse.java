@@ -1,6 +1,7 @@
 package phd.palamedi.response;
 
 import org.springframework.beans.BeanUtils;
+import phd.palamedi.index.model.PublicationIndex;
 import phd.palamedi.model.Publication;
 
 /**
@@ -16,6 +17,10 @@ public class PublicationResponse {
     public PublicationResponse(Publication publication) {
         BeanUtils.copyProperties(publication, this);
         this.setPublisher(publication.getPublisher().getName());
+    }
+
+    public PublicationResponse(PublicationIndex publication) {
+        BeanUtils.copyProperties(publication, this);
     }
 
     public String getPublisher() {

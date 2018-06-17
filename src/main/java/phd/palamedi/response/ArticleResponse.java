@@ -1,6 +1,7 @@
 package phd.palamedi.response;
 
 import org.springframework.beans.BeanUtils;
+import phd.palamedi.index.model.ArticleIndex;
 import phd.palamedi.model.*;
 
 import java.util.ArrayList;
@@ -24,6 +25,11 @@ public class ArticleResponse {
     public ArticleResponse(Article article) {
         BeanUtils.copyProperties(article, this);
         this.setPublication(new PublicationResponse(article.getPublication()));
+    }
+
+    public ArticleResponse(ArticleIndex article) {
+        BeanUtils.copyProperties(article, this);
+        this.setId(Integer.valueOf(article.getId()));
     }
 
     public Integer getId() {

@@ -190,7 +190,7 @@ public class ArticleService {
 
         SearchResponse searchResponse = new SearchResponse();
 
-        searchResponse.setTotal(total);
+        searchResponse.setTotal((long) total);
         searchResponse.setTerms(terms);
         searchResponse.setQuery(query.toString());
         searchResponse.setArticles(articles);
